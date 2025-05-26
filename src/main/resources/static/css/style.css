@@ -1,0 +1,118 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.song-list {
+    margin-top: 20px;
+}
+
+.song-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.song-info {
+    flex: 1;
+}
+
+.song-info h3 {
+    margin: 0 0 8px 0;
+    color: #333;
+}
+
+.song-info p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.song-actions {
+    margin-left: 20px;
+}
+
+.fav-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #ff4081;
+    padding: 5px 10px;
+    transition: all 0.2s ease;
+}
+
+.fav-btn:hover {
+    transform: scale(1.1);
+}
+
+.fav-btn.active {
+    color: #ff1744;
+    text-shadow: 0 0 2px rgba(255, 23, 68, 0.4);
+}
+
+.error {
+    color: #f44336;
+    padding: 10px;
+    background-color: #ffebee;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.search-form {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.search-form button {
+    padding: 8px 20px;
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.search-form button:hover {
+    background-color: #1976d2;
+}
+
+.tabs {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+}
+
+.tabs button {
+    padding: 8px 20px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.tabs button:hover {
+    background-color: #e0e0e0;
+}
+
+.tabs button.active {
+    background-color: #2196f3;
+    color: white;
+    border-color: #2196f3;
+}
+
+
