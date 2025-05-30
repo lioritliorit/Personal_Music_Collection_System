@@ -156,9 +156,22 @@
     // 显示收藏的歌曲
     function showFavorites() {
         const userId = localStorage.getItem('userId');
+        if (!userId) {
+            alert('请先登录');
+            return;
+        }
         fetch(`/api/songs/favorites?userId=${userId}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('获取收藏列表失败');
+                }
+                return response.json();
+            })
             .then(songs => {
+                if (!songs || songs.length === 0) {
+                    document.getElementById('content').innerHTML = '<p>暂无收藏歌曲</p>';
+                    return;
+                }
                 displaySongs(songs, true);
             })
             .catch(error => {
@@ -205,7 +218,7 @@
 
         // 获取所有歌曲的收藏状态
         Promise.all(songs.map(song =>
-            fetch(`/api/songs/${song.id}/favorite?userId=${userId}`)
+            fetch(`/api/songs/${song.id || song.songId}/favorite?userId=${userId}`)
                 .then(response => response.json())
                 .then(data => ({...song, isFavorite: data}))
         )).then(songsWithFavorites => {
@@ -213,13 +226,13 @@
             songsWithFavorites.forEach(song => {
                 html += `
                         <div class="song-card">
-                            <div class="song-title" onclick="showSongDetails(${song.id})" style="cursor: pointer;">${song.title}</div>
-                            <div class="song-artist" onclick="showArtistDetails(${song.id})" style="cursor: pointer;">${song.artistName || '未知艺术家'}</div>
-                            <div class="song-duration">${formatDuration(song.duration)}</div>
+                            <div class="song-title" onclick="showSongDetails(${song.id || song.songId})" style="cursor: pointer;">${song.title || song.songTitle || '未知歌曲'}</div>
+                            <div class="song-artist" onclick="showArtistDetails(${song.id || song.songId})" style="cursor: pointer;">${song.artistName || '未知艺术家'}</div>
+                            <div class="song-duration">${formatDuration(song.duration || 0)}</div>
                             <div class="song-play-count">播放次数：${song.playCount || 0}</div>
-                            <button onclick="playSong(${song.id})" class="play-btn">▶</button>
-                            <button class="favorite-btn ${song.isFavorite ? 'active' : ''}" onclick="toggleFavorite(${song.id}, ${isFavorites})">❤</button>
-                            <button onclick="deleteSong(${song.id})" class="delete-btn">删除</button>
+                            <button onclick="playSong(${song.id || song.songId})" class="play-btn">▶</button>
+                            <button class="favorite-btn ${song.isFavorite ? 'active' : ''}" onclick="toggleFavorite(${song.id || song.songId}, ${isFavorites})">❤</button>
+                            <button onclick="deleteSong(${song.id || song.songId})" class="delete-btn">删除</button>
                         </div>
                     `;
             });
@@ -382,13 +395,27 @@
 
     // 播放歌曲
     function playSong(songId) {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            alert('请先登录');
+            return;
+        }
         fetch(`/api/songs/${songId}/play`, {
             method: 'POST'
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('播放失败');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.message) {
-                showAllSongs(); // 刷新列表以显示更新后的播放次数
+                // 更新播放次数显示
+                const songCard = document.querySelector(`[onclick="playSong(${songId})"]`).closest('.song-card');
+                const playCountElement = songCard.querySelector('.song-play-count');
+                const currentCount = parseInt(playCountElement.textContent.match(/\d+/)[0]);
+                playCountElement.textContent = `播放次数：${currentCount + 1}`;
             }
         })
         .catch(error => {
@@ -402,13 +429,30 @@
         if (!confirm('确定要删除这首歌吗？')) {
             return;
         }
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            alert('请先登录');
+            return;
+        }
         fetch(`/api/songs/${songId}`, {
             method: 'DELETE'
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('删除失败');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.message) {
-                showAllSongs(); // 刷新列表
+                // 从界面中移除歌曲卡片
+                const songCard = document.querySelector(`[onclick="deleteSong(${songId})"]`).closest('.song-card');
+                songCard.remove();
+                // 如果没有歌曲了，显示提示信息
+                const songList = document.querySelector('.song-list');
+                if (!songList.children.length) {
+                    document.getElementById('content').innerHTML = '<p>暂无歌曲</p>';
+                }
             }
         })
         .catch(error => {
